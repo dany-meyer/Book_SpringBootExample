@@ -5,14 +5,10 @@ import java.net.http.HttpResponse;
 
 public class StudentAPIClient {
 
-    private static final String MOCK_URL =
-            "https://d26c480a-f6d5-4e64-819e-ea0df80bcff0.mock.pstmn.io";
+
+    private static final String MY_URL = "http://localhost:8080";
 
     public static void main(String[] args) throws Exception {
-
-
-        int[] zahlen = new int[]{80, 90, 70};
-        int[] zahlen2 = {80, 90, 70};
 
 
         // HTTP Client erstellen
@@ -20,7 +16,7 @@ public class StudentAPIClient {
 
         // Request erstellen
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(MOCK_URL + "/api/students"))
+                .uri(URI.create(MY_URL + "/books"))
                 .GET()
                 .build();
 
