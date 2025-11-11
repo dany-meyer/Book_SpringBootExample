@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 /**
- * voller Integrationstest der Spring-Boot-Applikation
+ * voller Integrationstest für die Spring-Boot-Applikation
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BookApiIT {
