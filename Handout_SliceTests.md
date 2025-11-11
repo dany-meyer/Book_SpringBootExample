@@ -1,4 +1,4 @@
-# Slice-Tests in Spring Boot – Handout für das Projekt `Book_SpringBootExample`
+# Slice-Tests in Spring Boot – Handout für das Projekt "Book_SpringBootExample"
 
 Dieses Handout erklärt die Teststruktur und -methodik der Beispiel-App  
 [`Book_SpringBootExample`](https://github.com/dany-meyer/Book_SpringBootExample).  
