@@ -19,6 +19,11 @@ public class BookController {
         return repo.findAll();
     }
 
+    @GetMapping("/{id}")
+    Book byId(@PathVariable Long id) {
+        return repo.findById(id).orElseThrow();
+    }
+
     @PostMapping
     public Book addBook(@RequestBody Book book) {
         return repo.save(book);
