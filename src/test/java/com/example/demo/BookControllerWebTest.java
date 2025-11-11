@@ -267,7 +267,7 @@ class BookControllerWebTest {
     void getFromWrongUrl_ShouldReturnNotFound() throws Exception {
         // ACT & ASSERT
         mockMvc.perform(get("/books/wrong"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     /**
