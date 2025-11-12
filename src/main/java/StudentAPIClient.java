@@ -3,6 +3,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+/**
+ * naive Testklasse als Benutzung
+ */
 public class StudentAPIClient {
 
 

@@ -17,7 +17,6 @@ class BookRepositoryTest {
      * KEIN Mockito - testet echte JPA-Operationen
      */
 
-
     @Autowired
     private BookRepository bookRepository;
 
