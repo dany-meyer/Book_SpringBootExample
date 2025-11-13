@@ -1,0 +1,114 @@
+<!-- Simple Test-Seite, die get und post requests absenden kann
+     es ist keine komplette url angegeben, weil es sich relativ auf den gestarteten Servicer bezieht
+     z.B. Aufruf localhost:8080/books.html
+ -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>BookController – GET & POST Beispiel</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    section { margin-bottom: 2rem; border-bottom: 1px solid #ccc; padding-bottom: 1rem; }
+    pre { background: #f4f4f4; padding: 1rem; border-radius: 6px; }
+    input { padding: 0.4rem; margin-top: 0.3rem; }
+    button { padding: 0.5rem 1rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <h1>📚 BookController Testseite</h1>
+
+  <!-- =============================== -->
+  <!-- GET /books -->
+  <!-- =============================== -->
+  <section>
+    <h2>🔍 Alle Bücher laden (GET /books)</h2>
+
+    <button id="getBooksBtn">Bücher laden</button>
+
+    <h3>Antwort:</h3>
+    <pre id="getBooksOutput">Noch keine Anfrage gemacht.</pre>
+  </section>
+
+  <!-- =============================== -->
+  <!-- POST /books -->
+  <!-- =============================== -->
+  <section>
+    <h2>➕ Neues Buch anlegen (POST /books)</h2>
+
+    <label>Titel:</label><br>
+    <input id="titleInput" type="text" placeholder="Title"><br><br>
+
+    <label>Author:</label><br>
+    <input id="authorInput" type="text" placeholder="Author"><br><br>
+
+    <button id="postBookBtn">Buch speichern</button>
+
+    <h3>Antwort:</h3>
+    <pre id="postBookOutput">Noch keine Anfrage gemacht.</pre>
+  </section>
+
+
+  <script>
+    // ---------------------------------------------
+    // GET /books
+    // ---------------------------------------------
+    document.getElementById("getBooksBtn").addEventListener("click", async () => {
+      const out = document.getElementById("getBooksOutput");
+      out.textContent = "Lade ...";
+
+      try {
+        const res = await fetch("/books");
+        if (!res.ok) {
+          out.textContent = `Fehler: ${res.status} ${res.statusText}`;
+          return;
+        }
+        const data = await res.json();
+        out.textContent = JSON.stringify(data, null, 2);
+
+      } catch (err) {
+        out.textContent = "Netzwerkfehler: " + err;
+      }
+    });
+
+
+    // ---------------------------------------------
+    // POST /books
+    // ---------------------------------------------
+    document.getElementById("postBookBtn").addEventListener("click", async () => {
+      const title = document.getElementById("titleInput").value;
+      const author = document.getElementById("authorInput").value;
+
+      const out = document.getElementById("postBookOutput");
+      out.textContent = "Sende Daten ...";
+
+      // Payload gemäß deinem Book-DTO
+      const payload = {
+        title: title,
+        author: author
+      };
+
+      try {
+        const res = await fetch("/books", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          out.textContent = `Fehler: ${res.status} ${res.statusText}`;
+          return;
+        }
+
+        const data = await res.json();
+        out.textContent = JSON.stringify(data, null, 2);
+
+      } catch (err) {
+        out.textContent = "Netzwerkfehler: " + err;
+      }
+    });
+  </script>
+
+</body>
+</html>
