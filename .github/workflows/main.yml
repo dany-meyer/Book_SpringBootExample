@@ -32,3 +32,12 @@ jobs:
           path: |
             **/target/surefire-reports/**
             **/target/failsafe-reports/**
+
+      # HTML-Report als eigenes Artifact
+      - name: Upload HTML test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-report-html
+          path: |
+            **/target/site/surefire-report.html
