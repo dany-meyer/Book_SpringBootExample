@@ -21,8 +21,8 @@ jobs:
           java-version: "21"   # oder "17" – passend zu deinem Projekt
           cache: maven
 
-      - name: Build & test (Maven)
-        run: mvn -B -ntp clean verify
+      - name: Build & test (Maven & HTML Report)
+        run: mvn -B -ntp clean verify surefire-report:report
 
       - name: Upload test reports (Surefire/Failsafe)
         if: always()
