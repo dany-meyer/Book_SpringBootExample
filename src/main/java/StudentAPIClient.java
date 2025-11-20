@@ -14,6 +14,9 @@ public class StudentAPIClient {
     public static void main(String[] args) throws Exception {
 
 
+
+
+
         // HTTP Client erstellen
         HttpClient client = HttpClient.newHttpClient();
 
