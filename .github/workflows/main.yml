@@ -40,4 +40,4 @@ jobs:
         with:
           name: surefire-report-html
           path: |
-            **/target/site/surefire-report.html
+            **/target/reports/surefire.html
