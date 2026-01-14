@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant FE as Frontend
+    participant C as Controller
+    participant R as Repository
+    participant DB as Datenbank
+
+    FE->>C: POST /books<br/>{title: "Clean Code", author: "Martin"}
+
+    C->>C: addBook: book aus RequestBody
+
+    alt Validierung erfolgreich
+        C->>R: save(book)
+        R->>DB: save(book)
+        DB-->>R: ID: 123
+        R-->>C: Book(id=123, title="Clean",...)
+        C-->>FE: 201 Created<br/>{id: 123, title: "Clean",...}
+
+    else Validierung fehlgeschlagen
+        C-->>FE: 400 Bad Request<br/>{error: "Ungültige Daten"}
+    end

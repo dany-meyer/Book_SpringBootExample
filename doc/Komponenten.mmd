@@ -1,0 +1,26 @@
+graph TB
+    subgraph "Presentation Layer"
+        FE[Frontend<br/> books.html]
+    end
+
+    subgraph "Application Layer"
+        C[BookController<br/>REST Endpoints<br/>Validierung]
+    end
+
+
+    subgraph "Data Access Layer"
+        R[BookRepository<br/>CRUD Operationen<br/>]
+    end
+
+    subgraph "Database Layer"
+        DB[(Datenbank<br/>PostgreSQL/MySQL)]
+    end
+
+    FE -->|HTTP/REST<br/>JSON| C
+    C --> |Entity| R
+    R -->|JPA| DB
+
+    style FE fill:#e1f5ff
+    style C fill:#fff4e1
+    style R fill:#e1ffe1
+    style DB fill:#f0f0f0
