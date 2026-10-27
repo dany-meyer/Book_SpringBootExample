@@ -8,9 +8,10 @@ Das Beispiel demonstriert ein einfaches Beispiel in den Schichten
 
 ## Slice-Tests ## 
 - Controller-Schicht: BookControllerTest (mit Mock-Objekten, testet die Methoden) sowie BookControllerWebTest (via @WebMvcTest testet auch die Schnittstelle)
-- Repository-Schicht: BookRepository-Schicht (mit @DataJpaTest, verwendet in-memory DB)
+- Repository-Schicht: BookRepositoryTest (mit @DataJpaTest, verwendet in-memory DB)
 - Test, ob SpringBoot-Applikation korrekt startet: DemoApplicationTests (@SpringBootTest, prüft context)
-- Integrationstest: BookApiIT (@SpringBootTest, prüft komplette Integration) 
+- Ganze Anwendung über HTTP: BookApiIT (@SpringBootTest mit echtem Server und Datenbank – Spring nennt das Integrationstest, nach ISTQB ein Systemtest des Backends)
+- Ausführlich erklärt: Handout_SliceTests.md
 
 ## Start der Applikation aus IntelliJ
 - über: Start --> DemoApplication
@@ -18,63 +19,49 @@ Das Beispiel demonstriert ein einfaches Beispiel in den Schichten
 
 ## Static WebSite with post/get-Examples ##
 Web-Site mit einfacher Integration von post und get-Requests
-- abgelegt unter main/ressources/static
+- abgelegt unter src/main/resources/static
 - Beispiel kann als Start für weitere Anwendungen gesehen werden z.B. in Vue.js
 - Test-Web-Site erreichbar: http://localhost:8080/books.html (wenn Spring-Boot-App läuft)
 
 ## Swagger-Doc ##
-  - wird aktiviert durch Eintragen des entsprechenden Eintrags in den dependencies (siehe pom.xml)
-  - erreichbar: http://localhost:8080/swagger-ui/index.html
+- wird aktiviert durch Eintragen des entsprechenden Eintrags in den dependencies (siehe pom.xml)
+- erreichbar: http://localhost:8080/swagger-ui/index.html
 
 ## in-memory Datenbank ## 
-  - es ist einen h2-in-Memory DB konfiguriert (siehe main/ressouces/application.properties)
-  - ist bei jedem Neustart geleert
-  - web-Konsole erreichbar über: http://localhost:8080/h2-console
+- es ist eine H2-in-Memory-DB konfiguriert (siehe src/main/resources/application.properties)
+- ist bei jedem Neustart geleert
+- web-Konsole erreichbar über: http://localhost:8080/h2-console
 
-## Deployment via docker und render
-### Voraussetzungen 
-- docker installieren z.B. docker Desktop via http://docker.com
-- test in Konsole (Terminal) mit: docker --version
-- Dockerfile erzeugen:
-  - enthält Anweisungen zum Erstellen des Docker-Image
-  - liegt auf oberster Ebene des Projektes, auf gleicher Ebene wie pom.xml
-- Anmelden auf Render: http://render.com
+## Docker
 
-### Schritt 1
-- ein jar der Applikation erzeugen: in (IntelliJ-)Terminal eingeben:  ./mvnw clean package -DskipTests
-- danach Docker starten (das ist i.d.R. eine extra Application); zum Test, ob Docker läuft: docker info
+### Voraussetzungen
+- Docker installieren, z.B. Docker Desktop: https://www.docker.com
+- Test im Terminal: `docker --version`
+- Docker starten (Docker Desktop ist eine eigene Anwendung); prüfen, ob Docker läuft: `docker info`
+- Das `Dockerfile` liegt auf oberster Ebene des Projektes, auf gleicher Ebene wie die `pom.xml`. Es enthält die Anweisungen zum Erstellen des Docker-Image.
+- Das Dockerfile baut die Anwendung selbst (Multi-Stage-Build): In der ersten Stufe erzeugt Maven im Container das jar, die zweite Stufe enthält nur die Java-Laufzeit und das jar. Ein vorheriges `./mvnw package` ist deshalb nicht nötig.
 
-### Schritt 2: Docker-Image erzeugen
-- Docker-Image wird entsprechend des Dockerfile erzeugt: docker build --platform linux/amd64 -t my-spring-app:latest .
-- Das gebaute image kann jetzt testweise lokal ausgeführt werden, später soll es auf ein cloud-repository geladen werden
-  - prüfe, ob das Image vorhanden ist: docker images
-  
-### Schritt 2.1: Lokaler Test - Docker-Container starten und testen
-- container (aus dem Image wird ein lauffähiger Prozess erzeugt) starten: docker run -p 8080:8080 my-spring-app:latest
-  - -p 8080:8080 → leitet den Port 8080 im Container auf deinen Mac-Port 8080 weiter
-  - my-spring-app:latest → das Image
-- jetzt kann ich meinen Service auf meinem Rechner über Port 8080 erreichen: z.B. http://localhost:8080/swagger-ui/index.html
-- prüfen, ob ob der Container läuft: docker ps --> liefert auch Container-Id
-- stoppen des Containers: docker stop <container-id>
-- löschen des Containers: docker rm <container-id>
+### Schritt 1: Docker-Image erzeugen
+- im (IntelliJ-)Terminal im Projektordner: `docker build -t my-spring-app:latest .`
+  - `-t my-spring-app:latest` → gibt dem Image einen Namen und einen Tag: `my-spring-app` ist der Name, `latest` (nach dem Doppelpunkt) die Versionsbezeichnung, z.B. auch `1.0`; 
+  - ohne Angabe nimmt Docker `latest`
+  - ohne `-t` hat das Image nur eine ID (z.B. `3f2a9c1b7e…`), die man bei `docker run` angeben müsste
+  - `.` am Ende → der aktuelle Ordner ist der Build-Kontext (hier liegen Dockerfile und pom.xml)
+- der erste Build dauert einige Minuten, weil Maven alle Abhängigkeiten lädt; danach geht es schneller
+- prüfen, ob das Image vorhanden ist: `docker images`
+- Hinweis für Macs mit Apple-Chip (M1–M4): Das Image wird für ARM gebaut. Soll es später auf einem Linux-Server mit Intel/AMD-Prozessor laufen, mit `docker build --platform linux/amd64 -t my-spring-app:latest .` bauen.
 
-### Schritt 3: Image auf GitHub Container Registry hochladen ###
-- auf gitHub Container Registry (ghcr) registieren: echo "<GITHUB_TOKEN>" | docker login ghcr.io -u deinuser --password-stdin
-- das Image für GHCR taggen:
-  - GHCR verwendet dieses URL-Schema: ghcr.io/<USERNAME>/<IMAGENAME>:<TAG>
-  - in unserem Beispiel: docker tag my-spring-app:latest ghcr.io/<USERNAME>/my-spring-app:latest
-- Image auf GHCR hochladen:
-  - docker push ghcr.io/deinuser/myapp:latest
-  - in unserem Beispiel: docker push ghcr.io/deinuser/my-spring-app:latest
-- in GitHub prüfen:
-  - Gehe zu: GitHub → Dein Profil → Packages
-  - dort sollten wir unser image sehen
-  - ggf. über Settings 'public' machen
-  
-### Schritt 4: in Render verwenden ###
-- In Render → New Web Service → Deploy from existing image: ghcr.io/deinuser/my-spring-app:latest
-- in der Render Konsole ist nun beobachtbar, dass der Docker-Container gestartet wird
-- nach dem Starten der Spring-Boot-Application ist der Service erreichbar z.B. https://my-spring-app-latest-bvnk.onrender.com/swagger-ui/index.html
-- beachten Sie, dass in der Free-Version der Service bei Innaktivität > 60s herunterfährt und danach beim ersten Zugriff eine längere Startup-Zeit benötigt
+### Schritt 2: Docker-Container starten und testen
+- Container (aus dem Image wird ein lauffähiger Prozess erzeugt) starten: `docker run -p 8080:8080 my-spring-app:latest`
+  - `-p 8080:8080` → leitet den Port 8080 im Container auf den Port 8080 Ihres Rechners weiter
+  - `my-spring-app:latest` → das Image
+- jetzt ist der Service auf Ihrem Rechner erreichbar, z.B. http://localhost:8080/books oder http://localhost:8080/swagger-ui/index.html
+- Port 8080 schon belegt (z.B. weil die Anwendung noch aus IntelliJ läuft)? Dann anderen Port Ihres Rechners nehmen: `docker run -p 9090:8080 my-spring-app:latest` → http://localhost:9090/books
+- prüfen, ob der Container läuft: `docker ps` → liefert auch die Container-Id
+- stoppen des Containers: `docker stop <container-id>`
+- löschen des Containers: `docker rm <container-id>`
 
-
+## Continuous Integration
+- Bei jedem Push baut GitHub Actions das Projekt, führt alle Tests aus und baut das Docker-Image (siehe `.github/workflows/main.yml`)
+- Testberichte stehen danach im Actions-Lauf unter „Artifacts“
+- Das automatische Hochladen des Images in die GitHub Container Registry ist im Workflow vorbereitet (auskommentiert) – mehr dazu in 07 Konfigurationsmanagement

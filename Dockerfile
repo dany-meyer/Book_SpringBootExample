@@ -1,4 +1,4 @@
-# --------- Build-Stage ---------
+# --------- Build-Stage: baut das jar im Container ---------
 FROM eclipse-temurin:17-jdk AS build
 WORKDIR /workspace
 
@@ -6,28 +6,21 @@ WORKDIR /workspace
 COPY mvnw pom.xml ./
 COPY .mvn .mvn
 
-# Dependencies vorab laden
-RUN ./mvnw dependency:go-offline
+# Dependencies vorab laden (wird gecacht, solange sich die pom.xml nicht ändert)
+# chmod: falls mvnw beim Auschecken (z. B. unter Windows) nicht ausführbar ist
+RUN chmod +x mvnw && ./mvnw -B dependency:go-offline
 
 # Source-Code kopieren und bauen
 COPY src src
-RUN ./mvnw package -DskipTests
+RUN ./mvnw -B package -DskipTests
 
-# --------- Runtime-Stage ---------
+# --------- Runtime-Stage: nur Java-Laufzeit + jar ---------
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Jar aus der Build-Stage kopieren
 COPY --from=build /workspace/target/*.jar app.jar
 
-# Doku-Port für Render – üblicherweise 10000
-EXPOSE 10000
-#EXPOSE 8080
-
-# Wichtig:
-# - Render setzt $PORT (z.B. 10000)
-# - Wir reichen diesen Wert an Spring Boot weiter (--server.port=...)
-# - Fallback: 10000, falls PORT nicht gesetzt ist (z.B. beim lokalen Test)
-ENTRYPOINT ["sh", "-c", "java -jar /app/app.jar --server.port=${PORT:-10000}"]
-#ENTRYPOINT ["java","-jar","/app/app.jar"]
-
+# Spring Boot lauscht standardmäßig auf Port 8080
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
